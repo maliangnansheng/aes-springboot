@@ -29,7 +29,6 @@
                 "size": "af4389b2c38b5647522a94bb809a087c",
                 "no": "c6bb919597cf38ba804c4a53d2423ad5"
             },
-            dataType: 'text',
             contentType: "application/json",
             success: function (resData) {
                 // alert("返回的数据："+resData);
@@ -50,7 +49,7 @@
                 // X-HAVE-ENCRYPT和X-NOT-ENCRYPT 只能有其一！！！
                 // 加密的字段
                 // "X-HAVE-ENCRYPT":"id,age",// 两种方式都行
-                "X-HAVE-ENCRYPT": ["id", "age"]
+                "X-HAVE-ENCRYPT": "id, age"
                 // 不加密的字段
                 // "X-NOT-ENCRYPT": "size,no" // 两种方式都行
                 // "X-NOT-ENCRYPT": ["size", "no"]
@@ -64,7 +63,6 @@
                 "size": 10,
                 "no": "不需要解密"
             },
-            dataType: 'text',
             contentType: "application/json",
             success: function (resData) {
                 // alert("返回的数据："+resData);
@@ -88,7 +86,6 @@
                 "size": 100,
                 "no": "不需要解密"
             },
-            dataType: 'text',
             contentType: "application/json",
             success: function (resData) {
                 // alert("返回的数据："+resData);
@@ -105,7 +102,6 @@
             url: "test/ccc/save",
             headers: {"X-REQ-ENCRYPTED": 1},
             data: "daa239c7c8864e8ad49ffd5036463705311716d3c947eb0b3e7ae07c6676f1d1bcb06d244f45d9acfcb203b8e702d52dda3e8dca2c339baa8f77dee2d7e5f56ce1376b8429258e9f355a48a370cbf03dee19256d74f3452a2f76f2ad4fe9df31829ffd887f8d0202fba4aa8d2f9cb0b1e5571692b4a29767191aafa17c42d928186a812d059122add7a6936515c6bbf9cbe8b992830240901e6ee2d106569210",
-            dataType: 'text',
             contentType: "application/json",
             success: function (resData) {
                 // alert("返回的数据："+resData);
@@ -120,7 +116,6 @@
         $.ajax({
             type: "get",
             url: "test/ccc/getEncrypt",
-            dataType: 'text',
             contentType: "application/json",
             success: function (resData) {
                 // alert("返回的数据："+resData);
