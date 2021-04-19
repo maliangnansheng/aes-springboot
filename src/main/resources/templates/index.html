@@ -47,12 +47,13 @@
             // "X-HAVE-ENCRYPT"与"X-NOT-ENCRYPT"同时存在，以"X-HAVE-ENCRYPT"为准
             headers: {
                 "X-REQ-ENCRYPTED": 1,
+                // X-HAVE-ENCRYPT和X-NOT-ENCRYPT 只能有其一！！！
                 // 加密的字段
                 // "X-HAVE-ENCRYPT":"id,age",// 两种方式都行
-                "X-HAVE-ENCRYPT": ["id", "age"],
+                "X-HAVE-ENCRYPT": ["id", "age"]
                 // 不加密的字段
                 // "X-NOT-ENCRYPT": "size,no" // 两种方式都行
-                "X-NOT-ENCRYPT": ["size", "no"]
+                // "X-NOT-ENCRYPT": ["size", "no"]
             },
             data: {
                 "id": "a3445d13b33a9fd310a23ae3921b969b",

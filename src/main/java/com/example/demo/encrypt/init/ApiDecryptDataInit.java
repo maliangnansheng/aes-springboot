@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,16 +25,6 @@ import java.util.Map;
  */
 @Slf4j
 public class ApiDecryptDataInit implements ApplicationContextAware {
-	/**
-	 * url和对应controller类的映射关系
-	 */
-	public static Map<String, Class<?>> requestUriClassMap = new HashMap<>();
-
-	/**
-	 * url和对应方法的映射关系
-	 */
-	public static Map<String, Method> requestUriMethodMap = new HashMap<>();
-
 	/**
 	 * 需要对响应内容进行加密的接口URI
 	 * 比如：/user/list
@@ -59,12 +48,6 @@ public class ApiDecryptDataInit implements ApplicationContextAware {
                 Class<?> clz = bean.getClass();
                 Method[] methods = clz.getMethods();
                 for (Method method : methods) {
-                	// rest接口初始化（用于解密）
-					RequestMapping requestMapping = AnnotationUtils.findAnnotation(method, RequestMapping.class);
-					if (requestMapping != null && clz.getName().startsWith("com.example.demo.controller")) {
-						requestUriClassMap.put(getApiUri(clz, method), clz);
-						requestUriMethodMap.put(getApiUri(clz, method), method);
-					}
 					// 加密初始化
 					Encrypt encrypt = AnnotationUtils.findAnnotation(method, Encrypt.class);
                     if (encrypt != null) {
@@ -77,8 +60,6 @@ public class ApiDecryptDataInit implements ApplicationContextAware {
                 }
             }
         }
-		log.info("【requestUriClassMap】 {}", requestUriClassMap);
-		log.info("【requestUriMethodMap】 {}", requestUriMethodMap);
 		log.info("【responseEncryptUriList】 {}", responseEncryptUriList);
 	}
 

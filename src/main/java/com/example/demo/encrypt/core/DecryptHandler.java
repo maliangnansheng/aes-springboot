@@ -7,17 +7,14 @@ import com.example.demo.dto.ResponseResult;
 import com.example.demo.encrypt.constant.HeaderConstants;
 import com.example.demo.encrypt.constant.PathConstants;
 import com.example.demo.encrypt.util.AesEncryptUtils;
-import com.example.demo.encrypt.util.ParamUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author 马亮
@@ -30,51 +27,63 @@ public class DecryptHandler {
      *
      * @param requestWrapper 自定义的request
      * @param req            原始request
-     * @param clazz          请求对应的controller类
-     * @param method         请求对应的controller方法
      */
-    public static void processDecryption(DecryptRequestWrapper requestWrapper, HttpServletRequest req, Class<?> clazz, Method method) {
+    public static void processDecryption(DecryptRequestWrapper requestWrapper, HttpServletRequest req) {
         String requestData = requestWrapper.getRequestData();
         try {
-            // 非GET请求
-            if (!StringUtils.endsWithIgnoreCase(req.getMethod(), RequestMethod.GET.name())) {
+            // GET请求
+            String methodType = req.getMethod();
+            if (RequestMethod.GET.name().equals(methodType)) {
+                // 加密的参数
+                List<String> encryptParams = Collections.emptyList();
+                String encryptHeader = req.getHeader(HeaderConstants.HAVE_ENCRYPT_PARAMS);
+                if (encryptHeader != null) {
+                    encryptParams = Arrays.asList(encryptHeader.split(PathConstants.COMMA));
+                }
+                // 未加密的参数
+                List<String> notEncryptParams = Collections.emptyList();
+                String notEncryptHeader = req.getHeader(HeaderConstants.NOT_ENCRYPT_PARAMS);
+                if (notEncryptHeader != null) {
+                    notEncryptParams = Arrays.asList(notEncryptHeader.split(PathConstants.COMMA));
+                }
+
+                // url参数解密
+                Map<String, String> paramMap = new HashMap<>(10);
+                Enumeration<String> parameterNames = req.getParameterNames();
+                while (parameterNames.hasMoreElements()) {
+                    // 请求的各参数名（id）
+                    String paramName = parameterNames.nextElement();
+                    // 获取各参数值
+                    String paramValue = req.getParameter(paramName);
+
+                    // “指定加密参数头”和“指定未加密参数头”最多只能有一个
+                    if (CollectionUtils.isNotEmpty(encryptParams) && CollectionUtils.isNotEmpty(notEncryptParams)) {
+                        // TODO 抛出异常（自定义）
+                        throw new Exception();
+                    }
+                    // 指定了已经加密参数
+                    if (CollectionUtils.isNotEmpty(encryptParams) && CollectionUtils.isEmpty(notEncryptParams)) {
+                        if (encryptParams.contains(paramName)) {
+                            paramValue = AesEncryptUtils.aesDecrypt(paramValue);
+                        }
+                    }
+                    // 全字段加密
+                    if (CollectionUtils.isEmpty(encryptParams) && CollectionUtils.isEmpty(notEncryptParams)) {
+                        paramValue = AesEncryptUtils.aesDecrypt(paramValue);
+                    }
+
+                    paramMap.put(paramName, paramValue);
+                }
+                requestWrapper.setParamMap(paramMap);
+
+                // POST请求
+            } else if (RequestMethod.POST.name().equals(methodType)) {
                 // 解密
                 String decryptRequestData = AesEncryptUtils.aesDecrypt(requestData);
                 requestWrapper.setRequestData(decryptRequestData);
-                return;
+            } else {
+                // TODO 抛出异常
             }
-
-            // 加密的参数
-            String encryptParams = req.getHeader(HeaderConstants.HAVE_ENCRYPT_PARAMS);
-            // 未加密的参数
-            String notEncryptParams = req.getHeader(HeaderConstants.NOT_ENCRYPT_PARAMS);
-            // 获取类中方法的参数名（包括父类在内的所有字段）
-            List<String> methodParams = ParamUtils.getMethodParams(clazz, method);
-            // 有加密参数就以加密参数为准
-            if (encryptParams != null) {
-                methodParams = Arrays.asList(encryptParams.split(PathConstants.COMMA));
-                // 否则以未加密的参数为准
-            } else if (notEncryptParams != null) {
-                methodParams = methodParams.stream().filter(temp -> !Arrays.asList(notEncryptParams.split(PathConstants.COMMA)).contains(temp)).collect(Collectors.toList());
-            }
-
-            // url参数解密
-            Map<String, String> paramMap = new HashMap<>();
-            Enumeration<String> parameterNames = req.getParameterNames();
-            while (parameterNames.hasMoreElements()) {
-                // 请求的各参数名（id）
-                String paramName = parameterNames.nextElement();
-                // 对请求中有参数值的数据进行解密
-                if (methodParams.contains(paramName)) {
-                    // 获取各参数值
-                    String paramValue = req.getParameter(paramName);
-                    // 解密
-                    String decryptParamValue = AesEncryptUtils.aesDecrypt(paramValue);
-                    paramMap.put(paramName, decryptParamValue);
-                }
-            }
-
-            requestWrapper.setParamMap(paramMap);
         } catch (Exception e) {
             log.error("请求数据解密失败", e);
             throw new RuntimeException(e);

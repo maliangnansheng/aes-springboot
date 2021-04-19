@@ -10,7 +10,6 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 /**
  * 数据解密过滤器
@@ -40,16 +39,11 @@ public class DecryptFilter implements Filter {
         String uri = req.getMethod().toLowerCase() + PathConstants.COLON + req.getRequestURI();
         // 需要解密
         if (decryptionStatus) {
-            log.info("需要解密的请求 {}", uri);
-            Class<?> clazz = ApiDecryptDataInit.requestUriClassMap.get(uri);
-            Method method = ApiDecryptDataInit.requestUriMethodMap.get(uri);
-            if (clazz != null && method != null) {
-                // 以下是需要解密的操作
-                DecryptRequestWrapper requestWrapper = new DecryptRequestWrapper(req);
-                // 请求解密处理
-                DecryptHandler.processDecryption(requestWrapper, req, clazz, method);
-                req = requestWrapper;
-            }
+            // 以下是需要解密的操作
+            DecryptRequestWrapper requestWrapper = new DecryptRequestWrapper(req);
+            // 请求解密处理
+            DecryptHandler.processDecryption(requestWrapper, req);
+            req = requestWrapper;
         }
         // 需要加密
         if (encryptionStatus) {

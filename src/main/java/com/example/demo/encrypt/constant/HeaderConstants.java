@@ -16,12 +16,12 @@ public class HeaderConstants {
     public static final String ENCRYPT_HEADER = "X-RES-ENCRYPTED";
 
     /**
-     * 加密的参数
+     * 指定加密参数头
      */
     public static final String HAVE_ENCRYPT_PARAMS = "X-HAVE-ENCRYPT";
 
     /**
-     * 未加密的参数
+     * 指定未加密参数头
      */
     public static final String NOT_ENCRYPT_PARAMS = "X-NOT-ENCRYPT";
 
