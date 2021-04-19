@@ -48,7 +48,7 @@ aes-springboot 基于SpringBoot框架API的加解密操作
 
 ## 情景模拟
 
-### 请求需要加密
+### 【请求】需要加密
 
 - **GET请求**
 
@@ -193,9 +193,17 @@ aes-springboot 基于SpringBoot框架API的加解密操作
     });
     ```
 
-### 响应需要加密
+### 【响应】需要加密
 
-对响应结果整体进行加密，返回给前端，响应头加上`X-RES-ENCRYPTED`即可
+对响应结果整体进行加密`（只对data进行加密）`，返回给前端，响应头加上`X-RES-ENCRYPTED`即可，响应结果：
+
+```json
+{
+    "code": 200,
+    "data": "0e29895030ddb5bef289b736161d311d21fb54dfb9a66d411077d5e760ab9ab50a312e34bd7bd2b30522d80d39029a690ee1ac4871c87a4fec6f8928d543477c7d4ecbca943d3c6820c485a41e7873a2c24fde3aa1806f9b5206f98acb51e63b8f851eb9704c4f82c0400b4bb175049e71c0fe173752417b7856a7b8513fd907",
+    "desc": "描述"
+}
+```
 
 具体实现直接去看源码的`ApiDecryptDataInit类`、 `DecryptFilter类`、`EncryptResponseWrapper类`、`DecryptHandler类的processEncryption方法`
 
